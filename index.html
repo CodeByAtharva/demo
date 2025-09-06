@@ -117,16 +117,8 @@
         const photoCanvas = document.getElementById('photoCanvas');
         const downloadPhotoBtn = document.getElementById('downloadPhoto');
         const hiddenCanvas = document.getElementById('hiddenCanvas');
-        const securityNotice = document.getElementById('securityNotice');
 
         let stream = null;
-
-        // Show security notice on mobile if not secure context
-        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            if (!window.isSecureContext && location.protocol !== 'https:' && location.hostname !== 'localhost') {
-                securityNotice.classList.remove('hidden');
-            }
-        }
 
         // Start camera
         startCameraBtn.addEventListener('click', async () => {
@@ -274,21 +266,6 @@
             displayCtx.drawImage(sourceCanvas, 0, 0);
         }
 
-        // Event Listeners
-        signInBtn.addEventListener('click', requestAccessToken);
-        signOutBtn.addEventListener('click', signOut);
-        
-        // Save to Google Drive
-        saveToDriveBtn.addEventListener('click', () => {
-            if (currentPhotoBlob) {
-                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                const filename = `retro-photo-${timestamp}.jpg`;
-                uploadToGoogleDrive(currentPhotoBlob, filename);
-            } else {
-                alert('No photo to save. Please capture a photo first.');
-            }
-        });
-
         // Download photo
         downloadPhotoBtn.addEventListener('click', () => {
             const canvas = photoCanvas;
@@ -299,15 +276,6 @@
             link.href = canvas.toDataURL('image/jpeg', 0.9);
             link.click();
         });
-
-        // Initialize Google API when page loads
-        window.onload = () => {
-            if (typeof gapi !== 'undefined' && typeof google !== 'undefined') {
-                initializeGapi();
-            } else {
-                console.warn('Google APIs not loaded. Google Drive functionality will be disabled.');
-            }
-        };
 
         // Clean up on page unload
         window.addEventListener('beforeunload', () => {
