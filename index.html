@@ -117,8 +117,16 @@
         const photoCanvas = document.getElementById('photoCanvas');
         const downloadPhotoBtn = document.getElementById('downloadPhoto');
         const hiddenCanvas = document.getElementById('hiddenCanvas');
+        const securityNotice = document.getElementById('securityNotice');
 
         let stream = null;
+
+        // Show security notice on mobile if not secure context
+        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            if (!window.isSecureContext && location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                securityNotice.classList.remove('hidden');
+            }
+        }
 
         // Start camera
         startCameraBtn.addEventListener('click', async () => {
