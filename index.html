@@ -1,288 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Disposable Camera</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .retro-filter {
-            filter: sepia(30%) saturate(120%) contrast(110%) brightness(105%) hue-rotate(10deg);
-        }
-        
-        .film-grain {
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(255,255,255,.1) 1px, transparent 1px),
-                radial-gradient(circle at 75% 75%, rgba(0,0,0,.1) 1px, transparent 1px);
-            background-size: 4px 4px;
-        }
-        
-        .camera-border {
-            border: 8px solid #8B4513;
-            border-radius: 12px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
-        }
-        
-        .timestamp {
-            font-family: 'Courier New', monospace;
-            color: #FF6B35;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Retro Disposable Camera</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .retro-filter {
+      filter: sepia(30%) saturate(120%) contrast(110%) brightness(105%) hue-rotate(10deg);
+    }
+    .film-grain {
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,.1) 1px, transparent 1px),
+        radial-gradient(circle at 75% 75%, rgba(0,0,0,.1) 1px, transparent 1px);
+      background-size: 4px 4px;
+    }
+    .camera-border {
+      border: 8px solid #8B4513;
+      border-radius: 12px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.4);
+    }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-amber-100 to-orange-200 min-h-screen p-4">
-    <div class="max-w-2xl mx-auto">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-amber-900 mb-2">📸 Retro Cam</h1>
-            <p class="text-amber-700">Disposable camera vibes, digital convenience</p>
-        </div>
-
-        <!-- Camera Section -->
-        <div class="bg-amber-50 rounded-2xl p-6 shadow-2xl mb-6">
-            <div class="relative">
-                <!-- Video Preview -->
-                <div id="videoContainer" class="hidden">
-                    <video 
-                        id="videoPreview" 
-                        autoplay 
-                        playsinline 
-                        muted
-                        class="w-full h-80 object-cover camera-border retro-filter film-grain"
-                    ></video>
-                </div>
-
-                <!-- Placeholder when camera is off -->
-                <div id="cameraPlaceholder" class="w-full h-80 bg-amber-200 camera-border flex items-center justify-center">
-                    <div class="text-center text-amber-700">
-                        <div class="text-6xl mb-4">📷</div>
-                        <p class="text-xl font-semibold">Ready to capture memories?</p>
-                        <p class="text-sm">Click "Start Camera" to begin</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <div class="flex gap-4 mt-6 justify-center">
-                <button 
-                    id="startCamera" 
-                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
-                >
-                    🎬 Start Camera
-                </button>
-                
-                <button 
-                    id="capturePhoto" 
-                    class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 hidden"
-                    disabled
-                >
-                    📸 Capture Photo
-                </button>
-            </div>
-        </div>
-
-        <!-- Captured Photo Section -->
-        <div id="photoSection" class="bg-white rounded-2xl p-6 shadow-2xl hidden">
-            <h2 class="text-2xl font-bold text-amber-900 mb-4 text-center">📋 Latest Shot</h2>
-            
-            <div class="relative inline-block w-full">
-                <canvas 
-                    id="photoCanvas" 
-                    class="w-full camera-border retro-filter film-grain"
-                ></canvas>
-            </div>
-            
-            <div class="mt-4 text-center">
-                <button 
-                    id="downloadPhoto" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
-                >
-                    💾 Download Photo
-                </button>
-            </div>
-        </div>
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-amber-900 mb-2">📸 Retro Cam</h1>
+      <p class="text-amber-700">Disposable camera vibes, digital convenience</p>
     </div>
 
-    <!-- Hidden canvas for processing -->
-    <canvas id="hiddenCanvas" style="display: none;"></canvas>
+    <!-- Camera Section -->
+    <div class="bg-amber-50 rounded-2xl p-6 shadow-2xl mb-6">
+      <div class="relative">
+        <!-- Video Preview -->
+        <div id="videoContainer" class="hidden">
+          <video 
+            id="videoPreview" 
+            autoplay 
+            playsinline 
+            muted
+            class="w-full h-80 object-cover camera-border retro-filter film-grain"
+          ></video>
+        </div>
 
-    <script>
-        const videoPreview = document.getElementById('videoPreview');
-        const videoContainer = document.getElementById('videoContainer');
-        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
-        const startCameraBtn = document.getElementById('startCamera');
-        const capturePhotoBtn = document.getElementById('capturePhoto');
-        const photoSection = document.getElementById('photoSection');
-        const photoCanvas = document.getElementById('photoCanvas');
-        const downloadPhotoBtn = document.getElementById('downloadPhoto');
-        const hiddenCanvas = document.getElementById('hiddenCanvas');
+        <!-- Placeholder -->
+        <div id="cameraPlaceholder" class="w-full h-80 bg-amber-200 camera-border flex items-center justify-center">
+          <div class="text-center text-amber-700">
+            <div class="text-6xl mb-4">📷</div>
+            <p class="text-xl font-semibold">Ready to capture memories?</p>
+            <p class="text-sm">Click "Start Camera" to begin</p>
+          </div>
+        </div>
+      </div>
 
-        let stream = null;
+      <!-- Controls -->
+      <div class="flex gap-4 mt-6 justify-center">
+        <button 
+          id="startCamera" 
+          class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
+        >
+          🎬 Start Camera
+        </button>
+        
+        <button 
+          id="capturePhoto" 
+          class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 hidden"
+          disabled
+        >
+          📸 Capture Photo
+        </button>
+      </div>
+    </div>
 
-        // Start camera
-        startCameraBtn.addEventListener('click', async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        width: { ideal: 1280 }, 
-                        height: { ideal: 720 },
-                        facingMode: 'environment' // Prefer back camera on mobile
-                    }
-                });
-                
-                videoPreview.srcObject = stream;
-                
-                // Show video, hide placeholder
-                videoContainer.classList.remove('hidden');
-                cameraPlaceholder.classList.add('hidden');
-                
-                // Update buttons
-                startCameraBtn.textContent = '🔴 Stop Camera';
-                startCameraBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                startCameraBtn.classList.add('bg-red-600', 'hover:bg-red-700');
-                capturePhotoBtn.classList.remove('hidden');
-                capturePhotoBtn.disabled = false;
-                
-                // Change button functionality to stop camera
-                startCameraBtn.onclick = stopCamera;
-                
-            } catch (error) {
-                console.error('Error accessing camera:', error);
-                alert('Unable to access camera. Please make sure you have granted camera permissions.');
-            }
+    <!-- Captured Photo Section -->
+    <div id="photoSection" class="bg-white rounded-2xl p-6 shadow-2xl hidden">
+      <h2 class="text-2xl font-bold text-amber-900 mb-4 text-center">📋 Latest Shot</h2>
+      
+      <div class="relative inline-block w-full">
+        <canvas id="photoCanvas" class="w-full camera-border retro-filter film-grain"></canvas>
+      </div>
+      
+      <div class="mt-4 flex justify-center gap-4">
+        <button 
+          id="downloadPhoto" 
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
+        >
+          💾 Download Photo
+        </button>
+
+        <button 
+          id="sharePhoto" 
+          class="hidden bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
+        >
+          📤 Share Photo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden canvas -->
+  <canvas id="hiddenCanvas" style="display: none;"></canvas>
+
+  <script>
+    const videoPreview = document.getElementById('videoPreview');
+    const videoContainer = document.getElementById('videoContainer');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+    const startCameraBtn = document.getElementById('startCamera');
+    const capturePhotoBtn = document.getElementById('capturePhoto');
+    const photoSection = document.getElementById('photoSection');
+    const photoCanvas = document.getElementById('photoCanvas');
+    const downloadPhotoBtn = document.getElementById('downloadPhoto');
+    const hiddenCanvas = document.getElementById('hiddenCanvas');
+    const sharePhotoBtn = document.getElementById('sharePhoto');
+    let stream = null;
+
+    // Start camera
+    startCameraBtn.addEventListener('click', async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'environment' }
         });
+        videoPreview.srcObject = stream;
+        videoContainer.classList.remove('hidden');
+        cameraPlaceholder.classList.add('hidden');
 
-        // Stop camera
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-            
-            // Show placeholder, hide video
-            videoContainer.classList.add('hidden');
-            cameraPlaceholder.classList.remove('hidden');
-            
-            // Reset buttons
-            startCameraBtn.textContent = '🎬 Start Camera';
-            startCameraBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
-            startCameraBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-            capturePhotoBtn.classList.add('hidden');
-            capturePhotoBtn.disabled = true;
-            
-            // Reset button functionality
-            startCameraBtn.onclick = () => startCameraBtn.click();
-        }
+        startCameraBtn.textContent = '🔴 Stop Camera';
+        startCameraBtn.classList.replace('bg-green-600','bg-red-600');
+        startCameraBtn.classList.replace('hover:bg-green-700','hover:bg-red-700');
+        capturePhotoBtn.classList.remove('hidden');
+        capturePhotoBtn.disabled = false;
 
-        // Capture photo
-        capturePhotoBtn.addEventListener('click', () => {
-            if (!stream) return;
-            
-            const video = videoPreview;
-            const canvas = hiddenCanvas;
-            const ctx = canvas.getContext('2d');
-            
-            // Set canvas dimensions to match video
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            // Draw video frame to canvas
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Apply retro filter effects
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            applyRetroFilter(imageData);
-            ctx.putImageData(imageData, 0, 0);
-            
-            // Add timestamp
-            addTimestamp(ctx, canvas.width, canvas.height);
-            
-            // Display the photo
-            displayPhoto(canvas);
-            
-            // Show photo section
-            photoSection.classList.remove('hidden');
-            photoSection.scrollIntoView({ behavior: 'smooth' });
-        });
+        startCameraBtn.onclick = stopCamera;
+      } catch (err) {
+        console.error('Camera error:', err);
+        alert('Camera access failed. Check permissions.');
+      }
+    });
 
-        // Apply retro filter to image data
-        function applyRetroFilter(imageData) {
-            const data = imageData.data;
-            
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                
-                // Sepia effect
-                const sepiaR = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
-                const sepiaG = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
-                const sepiaB = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
-                
-                // Warm tint and contrast boost
-                data[i] = Math.min(255, sepiaR * 1.1 + 10);     // Red
-                data[i + 1] = Math.min(255, sepiaG * 1.05 + 5); // Green  
-                data[i + 2] = Math.min(255, sepiaB * 0.95);     // Blue
-            }
-        }
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      videoContainer.classList.add('hidden');
+      cameraPlaceholder.classList.remove('hidden');
 
-        // Add timestamp to canvas
-        function addTimestamp(ctx, width, height) {
-            const now = new Date();
-            const timestamp = now.toLocaleDateString('en-US', {
-                year: '2-digit',
-                month: '2-digit', 
-                day: '2-digit'
-            }) + ' ' + now.toLocaleTimeString('en-US', {
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            const fontSize = Math.max(16, width * 0.025);
-            ctx.font = `bold ${fontSize}px Courier New`;
-            ctx.fillStyle = '#FF6B35';
-            ctx.strokeStyle = 'rgba(0,0,0,0.8)';
-            ctx.lineWidth = 2;
-            
-            const x = width * 0.03;
-            const y = height - (height * 0.05);
-            
-            ctx.strokeText(timestamp, x, y);
-            ctx.fillText(timestamp, x, y);
-        }
+      startCameraBtn.textContent = '🎬 Start Camera';
+      startCameraBtn.classList.replace('bg-red-600','bg-green-600');
+      startCameraBtn.classList.replace('hover:bg-red-700','hover:bg-green-700');
+      capturePhotoBtn.classList.add('hidden');
+      capturePhotoBtn.disabled = true;
 
-        // Display captured photo
-        function displayPhoto(sourceCanvas) {
-            const displayCanvas = photoCanvas;
-            const displayCtx = displayCanvas.getContext('2d');
-            
-            // Set display canvas size
-            displayCanvas.width = sourceCanvas.width;
-            displayCanvas.height = sourceCanvas.height;
-            
-            // Copy the image
-            displayCtx.drawImage(sourceCanvas, 0, 0);
-        }
+      startCameraBtn.onclick = () => startCameraBtn.click();
+    }
 
-        // Download photo
-        downloadPhotoBtn.addEventListener('click', () => {
-            const canvas = photoCanvas;
-            const link = document.createElement('a');
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            
-            link.download = `retro-photo-${timestamp}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
-            link.click();
-        });
+    // Capture
+    capturePhotoBtn.addEventListener('click', () => {
+      if (!stream) return;
+      const video = videoPreview;
+      const canvas = hiddenCanvas;
+      const ctx = canvas.getContext('2d');
 
-        // Clean up on page unload
-        window.addEventListener('beforeunload', () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-        });
-    </script>
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Sepia tint
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      applyRetroFilter(imageData);
+      ctx.putImageData(imageData, 0, 0);
+
+      // Timestamp
+      addTimestamp(ctx, canvas.width, canvas.height);
+
+      // Display
+      displayPhoto(canvas);
+      photoSection.classList.remove('hidden');
+      photoSection.scrollIntoView({ behavior: 'smooth' });
+
+      // Show Share if supported
+      if (navigator.share && navigator.canShare) {
+        sharePhotoBtn.classList.remove('hidden');
+      }
+    });
+
+    function applyRetroFilter(imageData) {
+      const d = imageData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i+1], b = d[i+2];
+        const sepiaR = Math.min(255, (r*0.393)+(g*0.769)+(b*0.189));
+        const sepiaG = Math.min(255, (r*0.349)+(g*0.686)+(b*0.168));
+        const sepiaB = Math.min(255, (r*0.272)+(g*0.534)+(b*0.131));
+        d[i] = Math.min(255, sepiaR*1.1+10);
+        d[i+1] = Math.min(255, sepiaG*1.05+5);
+        d[i+2] = Math.min(255, sepiaB*0.95);
+      }
+    }
+
+    function addTimestamp(ctx, w, h) {
+      const now = new Date();
+      const ts = now.toLocaleDateString('en-US',{year:'2-digit',month:'2-digit',day:'2-digit'}) +
+                 ' ' + now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit'});
+      ctx.font = `bold ${Math.max(16, w*0.025)}px Courier New`;
+      ctx.fillStyle = '#FF6B35';
+      ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+      ctx.lineWidth = 2;
+      ctx.strokeText(ts, w*0.03, h-(h*0.05));
+      ctx.fillText(ts, w*0.03, h-(h*0.05));
+    }
+
+    function displayPhoto(sourceCanvas) {
+      photoCanvas.width = sourceCanvas.width;
+      photoCanvas.height = sourceCanvas.height;
+      photoCanvas.getContext('2d').drawImage(sourceCanvas,0,0);
+    }
+
+    // Download
+    downloadPhotoBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      const ts = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+      link.download = `retro-photo-${ts}.jpg`;
+      link.href = photoCanvas.toDataURL('image/jpeg',0.9);
+      link.click();
+    });
+
+    // Share
+    sharePhotoBtn.addEventListener('click', async () => {
+      photoCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const ts = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+        const file = new File([blob],`retro-photo-${ts}.jpg`,{type:"image/jpeg"});
+        try {
+          if (navigator.canShare && navigator.canShare({files:[file]})) {
+            await navigator.share({title:"Retro Cam",text:"Captured with Retro Cam 📸",files:[file]});
+          } else {
+            alert("Sharing not supported here.");
+          }
+        } catch(err){ console.error("Share failed:",err); }
+      },"image/jpeg",0.9);
+    });
+
+    window.addEventListener('beforeunload',()=>{ if(stream){stream.getTracks().forEach(t=>t.stop());} });
+  </script>
 </body>
 </html>
