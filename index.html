@@ -104,7 +104,7 @@
     const capturePhotoBtn = document.getElementById('capturePhoto');
     const photoSection = document.getElementById('photoSection');
     const photoCanvas = document.getElementById('photoCanvas');
-    const downloadPhotoBtn = document.getElementById('downloadPhoto');
+    //const downloadPhotoBtn = document.getElementById('downloadPhoto');
     const hiddenCanvas = document.getElementById('hiddenCanvas');
     const sharePhotoBtn = document.getElementById('sharePhoto');
     let stream = null;
@@ -263,14 +263,14 @@ function applyRetroFilter(imageData) {
     }
 
     // Download
-    downloadPhotoBtn.addEventListener('click', () => {
+   /* downloadPhotoBtn.addEventListener('click', () => {
       const link = document.createElement('a');
       const ts = new Date().toISOString().slice(0,19).replace(/:/g,'-');
       link.download = `retro-photo-${ts}.jpg`;
       link.href = photoCanvas.toDataURL('image/jpeg',0.9);
       link.click();
     });
-
+*/
     // Share
     sharePhotoBtn.addEventListener('click', async () => {
       photoCanvas.toBlob(async (blob) => {
