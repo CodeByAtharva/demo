@@ -82,18 +82,12 @@
       </div>
       
       <div class="mt-4 flex justify-center gap-4">
-        <button 
-          id="downloadPhoto" 
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
-        >
-          💾 Download Photo
-        </button>
 
         <button 
           id="sharePhoto" 
           class="hidden bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
         >
-          📤 Share Photo
+          📤 Upload to Drive
         </button>
       </div>
     </div>
@@ -116,27 +110,25 @@
     let stream = null;
 
     // Start camera
-    startCameraBtn.addEventListener('click', async () => {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'environment' }
-        });
-        videoPreview.srcObject = stream;
-        videoContainer.classList.remove('hidden');
-        cameraPlaceholder.classList.add('hidden');
-
-        startCameraBtn.textContent = '🔴 Stop Camera';
-        startCameraBtn.classList.replace('bg-green-600','bg-red-600');
-        startCameraBtn.classList.replace('hover:bg-green-700','hover:bg-red-700');
-        capturePhotoBtn.classList.remove('hidden');
-        capturePhotoBtn.disabled = false;
-
-        startCameraBtn.onclick = stopCamera;
-      } catch (err) {
-        console.error('Camera error:', err);
-        alert('Camera access failed. Check permissions.');
-      }
+startCameraBtn.addEventListener('click', async () => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'environment' }
     });
+    videoPreview.srcObject = stream;
+    videoContainer.classList.remove('hidden');
+    cameraPlaceholder.classList.add('hidden');
+
+    // Hide the start button and show capture button
+    startCameraBtn.classList.add('hidden');
+    capturePhotoBtn.classList.remove('hidden');
+    capturePhotoBtn.disabled = false;
+
+  } catch (err) {
+    console.error('Camera error:', err);
+    alert('Camera access failed. Check permissions.');
+  }
+});
 
     function stopCamera() {
       if (stream) {
@@ -192,9 +184,13 @@
         const sepiaR = Math.min(255, (r*0.393)+(g*0.769)+(b*0.189));
         const sepiaG = Math.min(255, (r*0.349)+(g*0.686)+(b*0.168));
         const sepiaB = Math.min(255, (r*0.272)+(g*0.534)+(b*0.131));
-        d[i] = Math.min(255, sepiaR*1.01+3);
+       /* d[i] = Math.min(255, sepiaR*1.01+3);
         d[i+1] = Math.min(255, sepiaG*1.05+2);
         d[i+2] = Math.min(255, sepiaB*0.98);
+      */
+        d[i] = Math.min(20);
+        d[i+1] = Math.min(0);
+        d[i+2] = Math.min(0);
       }
     }
 
