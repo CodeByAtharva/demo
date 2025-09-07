@@ -177,22 +177,22 @@ startCameraBtn.addEventListener('click', async () => {
       }
     });
 
-    function applyRetroFilter(imageData) {
-      const d = imageData.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i], g = d[i+1], b = d[i+2];
-        const sepiaR = Math.min(255, (r*0.393)+(g*0.769)+(b*0.189));
-        const sepiaG = Math.min(255, (r*0.349)+(g*0.686)+(b*0.168));
-        const sepiaB = Math.min(255, (r*0.272)+(g*0.534)+(b*0.131));
-       /* d[i] = Math.min(255, sepiaR*1.01+3);
-        d[i+1] = Math.min(255, sepiaG*1.05+2);
-        d[i+2] = Math.min(255, sepiaB*0.98);
-      */
-        d[i] = Math.min(20);
-        d[i+1] = Math.min(0);
-        d[i+2] = Math.min(0);
-      }
-    }
+function applyRetroFilter(imageData) {
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i], g = d[i+1], b = d[i+2];
+    
+    // Much lighter sepia effect - reduce the sepia coefficients
+    const sepiaR = Math.min(255, (r*0.9)+(g*0.08)+(b*0.02));
+    const sepiaG = Math.min(255, (r*0.05)+(g*0.9)+(b*0.05));
+    const sepiaB = Math.min(255, (r*0.02)+(g*0.02)+(b*0.96));
+    
+    // Very subtle warm adjustments
+    d[i] = Math.min(255, sepiaR + 2);     // Add just +2 red for warmth
+    d[i+1] = Math.min(255, sepiaG + 1);   // Add just +1 green
+    d[i+2] = Math.min(255, sepiaB - 1);   // Reduce blue slightly for warmth
+  }
+}
 
     function addTimestamp(ctx, w, h) {
       const now = new Date();
