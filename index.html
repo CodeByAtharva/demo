@@ -179,7 +179,14 @@ startCameraBtn.addEventListener('click', async () => {
 
 function applyRetroFilter(imageData) {
   const d = imageData.data;
+  const width = imageData.width;
+  const height = imageData.height;
+  
   for (let i = 0; i < d.length; i += 4) {
+    const pixelIndex = i / 4;
+    const x = pixelIndex % width;
+    const y = Math.floor(pixelIndex / width);
+    
     const r = d[i], g = d[i+1], b = d[i+2];
     
     // Much lighter sepia effect - reduce the sepia coefficients
@@ -188,9 +195,52 @@ function applyRetroFilter(imageData) {
     const sepiaB = Math.min(255, (r*0.02)+(g*0.02)+(b*0.96));
     
     // Very subtle warm adjustments
-    d[i] = Math.min(255, sepiaR + 2);     // Add just +2 red for warmth
-    d[i+1] = Math.min(255, sepiaG + 1);   // Add just +1 green
-    d[i+2] = Math.min(255, sepiaB - 1);   // Reduce blue slightly for warmth
+    let finalR = Math.min(255, sepiaR + 2);
+    let finalG = Math.min(255, sepiaG + 1);
+    let finalB = Math.min(255, sepiaB - 1);
+    
+    // Vintage border effects
+    const borderWidth = Math.min(width, height) * 0.1; // 10% of smallest dimension
+    const distanceFromEdge = Math.min(x, y, width - x, height - y);
+    
+    if (distanceFromEdge < borderWidth) {
+      // Create vignette effect near borders
+      const vignetteStrength = (borderWidth - distanceFromEdge) / borderWidth;
+      const vignetteFactor = 1 - (vignetteStrength * 0.4); // Max 40% darkening
+      
+      finalR *= vignetteFactor;
+      finalG *= vignetteFactor;
+      finalB *= vignetteFactor;
+      
+      // Add slight brown/sepia tint to border areas
+      const borderSepia = vignetteStrength * 0.3;
+      finalR = Math.min(255, finalR + (borderSepia * 30));
+      finalG = Math.min(255, finalG + (borderSepia * 20));
+      finalB = Math.min(255, finalB - (borderSepia * 10));
+    }
+    
+    // Add corner darkening for extra vintage feel
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const maxDistance = Math.sqrt(centerX * centerX + centerY * centerY);
+    const currentDistance = Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY));
+    const cornerDarkening = (currentDistance / maxDistance) * 0.15; // Max 15% corner darkening
+    
+    finalR = Math.max(0, finalR - (cornerDarkening * finalR));
+    finalG = Math.max(0, finalG - (cornerDarkening * finalG));
+    finalB = Math.max(0, finalB - (cornerDarkening * finalB));
+    
+    // Random film grain effect (subtle)
+    if (Math.random() < 0.03) { // 3% of pixels get grain
+      const grain = (Math.random() - 0.5) * 15;
+      finalR = Math.max(0, Math.min(255, finalR + grain));
+      finalG = Math.max(0, Math.min(255, finalG + grain));
+      finalB = Math.max(0, Math.min(255, finalB + grain));
+    }
+    
+    d[i] = finalR;
+    d[i+1] = finalG;
+    d[i+2] = finalB;
   }
 }
 
